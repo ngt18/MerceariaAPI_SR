@@ -43,8 +43,8 @@ app.post("/produto", async (req, res) => {
     let produto = req.body;
     try {
         const [result] = await db.query(
-            "INSERT INTO produto(nome, preco, quantidade, categoria_id) VALUES (?, ?, ?, ?)",
-            [produto.nome, produto.preco, produto.quantidade, produto.categoria_id]
+            "INSERT INTO produtos(nome, preco, quantidade, validade, categoria_id, fornecedor_id) VALUES (?, ?, ?, ?, ?, ?)",
+            [produto.nome, produto.preco, produto.quantidade, produto.validade, produto.categoria_id, produto.fornecedor_id]
         );
         produto.id = result.insertId;
         res.status(201).json(produto);
@@ -63,8 +63,8 @@ app.put("/produto/:id", async (req, res) => {
         const [rows] = await db.query("SELECT * FROM produto WHERE id = ?", [id]);
         if (rows.length > 0) {
             await db.query(
-                "UPDATE produto SET nome = ?, preco = ?, quantidade = ?, categoria_id = ? WHERE id = ?",
-                [produto.nome, produto.preco, produto.quantidade, produto.categoria_id, id]
+                "UPDATE produto SET nome = ?, preco = ?, quantidade = ?, validade = ?, categoria_id = ?, fornecedor_id = ? WHERE id = ?",
+                [produto.nome, produto.preco, produto.quantidade, produto.validade, produto.categoria_id, produto.fornecedor_id, id]
             );
             produto.id = Number(id);
             res.status(200).json(produto);
