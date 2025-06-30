@@ -17,7 +17,7 @@ CREATE TABLE produto (
                          nome VARCHAR(100) NOT NULL,
                          preco DECIMAL(10, 2) NOT NULL,
                          quantidade INT NOT NULL DEFAULT 0,
-                         validade DATE,
+                         validade DATETIME,
                          categoria_id INT,
                          fornecedor_id INT,
                          FOREIGN KEY (categoria_id) REFERENCES categorias(id),
@@ -31,6 +31,5 @@ CREATE TABLE movimentacoes_estoque (
                                        tipo ENUM('entrada', 'saida') NOT NULL,
                                        quantidade INT NOT NULL,
                                        data DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                       descricao TEXT,
                                        FOREIGN KEY (produto_id) REFERENCES produto(id)
 );
