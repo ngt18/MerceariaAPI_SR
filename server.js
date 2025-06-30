@@ -43,7 +43,7 @@ app.post("/produto", async (req, res) => {
     let produto = req.body;
     try {
         const [result] = await db.query(
-            "INSERT INTO produtos(nome, preco, quantidade, validade, categoria_id, fornecedor_id) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO produto(nome, preco, quantidade, validade, categoria_id, fornecedor_id) VALUES (?, ?, ?, ?, ?, ?)",
             [produto.nome, produto.preco, produto.quantidade, produto.validade, produto.categoria_id, produto.fornecedor_id]
         );
         produto.id = result.insertId;
@@ -65,6 +65,7 @@ app.put("/produto/:id", async (req, res) => {
             await db.query(
                 "UPDATE produto SET nome = ?, preco = ?, quantidade = ?, validade = ?, categoria_id = ?, fornecedor_id = ? WHERE id = ?",
                 [produto.nome, produto.preco, produto.quantidade, produto.validade, produto.categoria_id, produto.fornecedor_id, id]
+                
             );
             produto.id = Number(id);
             res.status(200).json(produto);
@@ -92,6 +93,251 @@ app.delete("/produto/:id", async (req, res) => {
         res.status(500).send("Erro ao deletar produto");
     }
 });
+
+// Listar todas as categorias
+app.get("/categoria", async (req, res) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM categorias");
+        res.json(rows);
+    } catch (error) {
+        console.log("Erro ao buscar categorias:", error.message);
+        res.status(500).send("Erro ao buscar categorias");
+    }
+});
+
+// Buscar categoria por ID
+app.get("/categoria/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [rows] = await db.query("SELECT * FROM categorias WHERE id = ?", [id]);
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            res.status(404).send("Categoria não encontrada!");
+        }
+    } catch (error) {
+        console.log("Erro ao buscar categoria:", error.message);
+        res.status(500).send("Erro ao buscar categoria");
+    }
+});
+
+// Criar nova categoria
+app.post("/categoria", async (req, res) => {
+    const { nome } = req.body;
+    if (!nome) return res.status(400).send("O campo 'nome' é obrigatório.");
+    try {
+        const [result] = await db.query("INSERT INTO categorias (nome) VALUES (?)", [nome]);
+        res.status(201).json({ id: result.insertId, nome });
+    } catch (error) {
+        console.log("Erro ao cadastrar categoria:", error.message);
+        res.status(500).send("Erro ao cadastrar categoria");
+    }
+});
+
+// Atualizar categoria
+app.put("/categoria/:id", async (req, res) => {
+    const id = req.params.id;
+    const { nome } = req.body;
+    if (!nome) return res.status(400).send("O campo 'nome' é obrigatório.");
+
+    try {
+        const [rows] = await db.query("SELECT * FROM categorias WHERE id = ?", [id]);
+        if (rows.length > 0) {
+            await db.query("UPDATE categorias SET nome = ? WHERE id = ?", [nome, id]);
+            res.json({ id: Number(id), nome });
+        } else {
+            res.status(404).send("Categoria não encontrada!");
+        }
+    } catch (error) {
+        console.log("Erro ao atualizar categoria:", error.message);
+        res.status(500).send("Erro ao atualizar categoria");
+    }
+});
+
+// Deletar categoria
+app.delete("/categoria/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [result] = await db.query("DELETE FROM categorias WHERE id = ?", [id]);
+        if (result.affectedRows > 0) {
+            res.status(204).send(); // Deletado com sucesso, sem conteúdo
+        } else {
+            res.status(404).send("Categoria não encontrada para deletar.");
+        }
+    } catch (error) {
+        console.log("Erro ao deletar categoria:", error.message);
+        res.status(500).send("Erro ao deletar categoria");
+    }
+});
+
+// Listar todos os fornecedores
+app.get("/fornecedor", async (req, res) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM fornecedores");
+        res.json(rows);
+    } catch (error) {
+        console.log("Erro ao buscar fornecedores:", error.message);
+        res.status(500).send("Erro ao buscar fornecedores");
+    }
+});
+
+// Buscar fornecedor por ID
+app.get("/fornecedor/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [rows] = await db.query("SELECT * FROM fornecedores WHERE id = ?", [id]);
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            res.status(404).send("Fornecedor não encontrado!");
+        }
+    } catch (error) {
+        console.log("Erro ao buscar fornecedor:", error.message);
+        res.status(500).send("Erro ao buscar fornecedor");
+    }
+});
+
+// Criar fornecedor
+app.post("/fornecedor", async (req, res) => {
+    const { nome, telefone, email } = req.body;
+    if (!nome) return res.status(400).send("O campo 'nome' é obrigatório.");
+    try {
+        const [result] = await db.query(
+            "INSERT INTO fornecedores (nome, telefone, email) VALUES (?, ?, ?)",
+            [nome, telefone, email]
+        );
+        res.status(201).json({ id: result.insertId, nome, telefone, email });
+    } catch (error) {
+        console.log("Erro ao cadastrar fornecedor:", error.message);
+        res.status(500).send("Erro ao cadastrar fornecedor");
+    }
+});
+
+// Atualizar fornecedor
+app.put("/fornecedor/:id", async (req, res) => {
+    const id = req.params.id;
+    const { nome, telefone, email } = req.body;
+    if (!nome) return res.status(400).send("O campo 'nome' é obrigatório.");
+
+    try {
+        const [rows] = await db.query("SELECT * FROM fornecedores WHERE id = ?", [id]);
+        if (rows.length > 0) {
+            await db.query(
+                "UPDATE fornecedores SET nome = ?, telefone = ?, email = ? WHERE id = ?",
+                [nome, telefone, email, id]
+            );
+            res.json({ id: Number(id), nome, telefone, email });
+        } else {
+            res.status(404).send("Fornecedor não encontrado!");
+        }
+    } catch (error) {
+        console.log("Erro ao atualizar fornecedor:", error.message);
+        res.status(500).send("Erro ao atualizar fornecedor");
+    }
+});
+
+// Deletar fornecedor
+app.delete("/fornecedor/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [result] = await db.query("DELETE FROM fornecedores WHERE id = ?", [id]);
+        if (result.affectedRows > 0) {
+            res.status(204).send()
+        } else {
+            res.status(404).send("Fornecedor não encontrado para deletar.");
+        }
+    } catch (error) {
+        console.log("Erro ao deletar fornecedor:", error.message);
+        res.status(500).send("Erro ao deletar fornecedor");
+    }
+});
+
+// Listar todas as movimentações
+app.get("/movimentacoes", async (req, res) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM movimentacoes_estoque");
+        res.json(rows);
+    } catch (error) {
+        console.log("Erro ao buscar movimentações:", error.message);
+        res.status(500).send("Erro ao buscar movimentações");
+    }
+});
+
+// Buscar movimentação por ID
+app.get("/movimentacoes/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [rows] = await db.query("SELECT * FROM movimentacoes_estoque WHERE id = ?", [id]);
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            res.status(404).send("Movimentação não encontrada!");
+        }
+    } catch (error) {
+        console.log("Erro ao buscar movimentação:", error.message);
+        res.status(500).send("Erro ao buscar movimentação");
+    }
+});
+
+// Criar movimentação
+app.post("/movimentacoes", async (req, res) => {
+    const { produto_id, tipo, quantidade } = req.body;
+    if (!produto_id || !tipo || !quantidade) {
+        return res.status(400).send("Campos obrigatórios: produto_id, tipo, quantidade");
+    }
+    try {
+        const [result] = await db.query(
+            "INSERT INTO movimentacoes_estoque (produto_id, tipo, quantidade) VALUES (?, ?, ?)",
+            [produto_id, tipo, quantidade]
+        );
+        res.status(201).json({ id: result.insertId, produto_id, tipo, quantidade });
+    } catch (error) {
+        console.log("Erro ao cadastrar movimentação:", error.message);
+        res.status(500).send("Erro ao cadastrar movimentação");
+    }
+});
+
+// Atualizar movimentação
+app.put("/movimentacoes/:id", async (req, res) => {
+    const id = req.params.id;
+    const { produto_id, tipo, quantidade} = req.body;
+    if (!produto_id || !tipo || !quantidade) {
+        return res.status(400).send("Campos obrigatórios: produto_id, tipo, quantidade");
+    }
+
+    try {
+        const [rows] = await db.query("SELECT * FROM movimentacoes_estoque WHERE id = ?", [id]);
+        if (rows.length === 0) {
+            return res.status(404).send("Movimentação não encontrada");
+        }
+
+        await db.query(
+            "UPDATE movimentacoes_estoque SET produto_id = ?, tipo = ?, quantidade = ? WHERE id = ?",
+            [produto_id, tipo, quantidade, id]
+        );
+        res.status(200).json({ id: Number(id), produto_id, tipo, quantidade});
+    } catch (error) {
+        console.log("Erro ao atualizar movimentação:", error.message);
+        res.status(500).send("Erro ao atualizar movimentação");
+    }
+});
+
+// Deletar movimentação
+app.delete("/movimentacoes/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [result] = await db.query("DELETE FROM movimentacoes_estoque WHERE id = ?", [id]);
+        if (result.affectedRows > 0) {
+            res.status(204).send();
+        } else {
+            res.status(404).send("Movimentação não encontrada para deletar.");
+        }
+    } catch (error) {
+        console.log("Erro ao deletar movimentação:", error.message);
+        res.status(500).send("Erro ao deletar movimentação");
+    }
+});
+
 
 app.listen(port, () => {
     console.log(`Servidor rodando na porta http://localhost:${port}/`);
