@@ -30,6 +30,7 @@ CREATE TABLE movimentacoes_estoque (
                                        produto_id INT NOT NULL,
                                        tipo ENUM('entrada', 'saida') NOT NULL,
                                        quantidade INT NOT NULL,
+                                       descricao TEXT,
                                        data DATETIME DEFAULT CURRENT_TIMESTAMP,
                                        FOREIGN KEY (produto_id) REFERENCES produto(id)
 );
