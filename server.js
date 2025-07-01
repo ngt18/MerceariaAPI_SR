@@ -6,7 +6,7 @@ const db = require('./db');
 
 app.use(express.json());
 
-// Hello world básico
+
 app.get("/", (req, res) => {
     res.send("API MerceariaSR funcionando!");
 });
