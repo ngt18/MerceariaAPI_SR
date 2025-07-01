@@ -41,6 +41,14 @@ app.get("/produto/:id", async (req, res) => {
 // Criar produto
 app.post("/produto", async (req, res) => {
     let produto = req.body;
+
+    if (!produto.nome || produto.preco == null || produto.quantidade == null) {
+        return res.status(400).send("Campos obrigatórios: nome, preco, quantidade");
+    }
+    if (produto.preco < 0 || produto.quantidade < 0) {
+        return res.status(400).send("Preço e quantidade devem ser valores positivos.");
+    }
+
     try {
         const [result] = await db.query(
             "INSERT INTO produto(nome, preco, quantidade, validade, categoria_id, fornecedor_id) VALUES (?, ?, ?, ?, ?, ?)",
@@ -281,16 +289,22 @@ app.get("/movimentacoes/:id", async (req, res) => {
 
 // Criar movimentação
 app.post("/movimentacoes", async (req, res) => {
-    const { produto_id, tipo, quantidade } = req.body;
+    const { produto_id, tipo, quantidade, descricao } = req.body;
     if (!produto_id || !tipo || !quantidade) {
         return res.status(400).send("Campos obrigatórios: produto_id, tipo, quantidade");
     }
+        if (!['entrada', 'saida'].includes(tipo)) {
+        return res.status(400).send("Tipo deve ser 'entrada' ou 'saida'.");
+    }
+    if (quantidade <= 0) {
+        return res.status(400).send("A quantidade deve ser maior que zero.");
+    }
     try {
         const [result] = await db.query(
-            "INSERT INTO movimentacoes_estoque (produto_id, tipo, quantidade) VALUES (?, ?, ?)",
-            [produto_id, tipo, quantidade]
+            "INSERT INTO movimentacoes_estoque (produto_id, tipo, quantidade, descricao) VALUES (?, ?, ?, ?)",
+            [produto_id, tipo, quantidade, descricao]
         );
-        res.status(201).json({ id: result.insertId, produto_id, tipo, quantidade });
+        res.status(201).json({ id: result.insertId, produto_id, tipo, quantidade, descricao });
     } catch (error) {
         console.log("Erro ao cadastrar movimentação:", error.message);
         res.status(500).send("Erro ao cadastrar movimentação");
@@ -312,10 +326,10 @@ app.put("/movimentacoes/:id", async (req, res) => {
         }
 
         await db.query(
-            "UPDATE movimentacoes_estoque SET produto_id = ?, tipo = ?, quantidade = ? WHERE id = ?",
-            [produto_id, tipo, quantidade, id]
+            "UPDATE movimentacoes_estoque SET produto_id = ?, tipo = ?, quantidade = ?, descricao = ? WHERE id = ?",
+            [produto_id, tipo, quantidade, descricao, id]
         );
-        res.status(200).json({ id: Number(id), produto_id, tipo, quantidade});
+        res.status(200).json({ id: Number(id), produto_id, tipo, quantidade, descricao });
     } catch (error) {
         console.log("Erro ao atualizar movimentação:", error.message);
         res.status(500).send("Erro ao atualizar movimentação");
