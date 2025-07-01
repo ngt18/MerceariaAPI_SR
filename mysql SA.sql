@@ -1,10 +1,10 @@
-CREATE TABLE categorias (
+CREATE TABLE categoria (
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             nome VARCHAR(50) NOT NULL
 );
 
 
-CREATE TABLE fornecedores (
+CREATE TABLE fornecedor (
                               id INT AUTO_INCREMENT PRIMARY KEY,
                               nome VARCHAR(100) NOT NULL,
                               telefone VARCHAR(20),
