@@ -1,10 +1,10 @@
-CREATE TABLE categoria (
+CREATE TABLE categorias (
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             nome VARCHAR(50) NOT NULL
 );
 
 
-CREATE TABLE fornecedor (
+CREATE TABLE fornecedores (
                               id INT AUTO_INCREMENT PRIMARY KEY,
                               nome VARCHAR(100) NOT NULL,
                               telefone VARCHAR(20),
@@ -20,8 +20,8 @@ CREATE TABLE produto (
                          validade DATETIME,
                          categoria_id INT,
                          fornecedor_id INT,
-                         FOREIGN KEY (categoria_id) REFERENCES categoria(id),
-                         FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id)
+                         FOREIGN KEY (categoria_id) REFERENCES categorias(id),
+                         FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id)
 );
 
 
