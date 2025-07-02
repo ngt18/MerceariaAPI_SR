@@ -20,9 +20,10 @@ CREATE TABLE produto (
                          validade DATETIME,
                          categoria_id INT,
                          fornecedor_id INT,
-                         FOREIGN KEY (categoria_id) REFERENCES categorias(id),
-                         FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id)
+                         FOREIGN KEY (categoria_id) REFERENCES categoria(id),
+                         FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id)
 );
+
 
 
 CREATE TABLE movimentacoes_estoque (
